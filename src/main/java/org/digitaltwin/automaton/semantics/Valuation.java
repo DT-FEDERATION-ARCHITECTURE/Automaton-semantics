@@ -5,12 +5,10 @@ import org.digitaltwin.automaton.model.Variable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Variable bindings: {(name, value), ...}
- *
- * Built from Variable declarations which carry their own initialValue.
- */
-public class Valuation {
+
+ // Variable bindings: {(name, value), ...}
+
+  public class Valuation {
 
     private final LinkedHashMap<String, Object> bindings;
 
@@ -18,10 +16,9 @@ public class Valuation {
         this.bindings = bindings;
     }
 
-    /**
-     * Build valuation from variable declarations.
-     * Each variable's initialValue is used, cast to the declared type.
-     */
+
+     //Build valuation from variable declarations.
+
     public static Valuation fromDeclarations(List<Variable> variables) {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         for (Variable v : variables) {
@@ -30,9 +27,9 @@ public class Valuation {
         return new Valuation(map);
     }
 
-    /**
-     * Build valuation from an explicit map (e.g., initial config values).
-     */
+
+     // Build valuation from an explicit map (e.g., initial config values).
+
     public static Valuation fromMap(Map<String, Object> values, List<Variable> variables) {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         for (Variable v : variables) {
@@ -52,6 +49,42 @@ public class Valuation {
 
     public Valuation copy() {
         return new Valuation(new LinkedHashMap<>(this.bindings));
+    }
+
+    // Injects external input values into a COPY of this valuation.
+
+    public Valuation inject(Map<String, Object> inputValues) {
+        Valuation result = this.copy();
+        if (inputValues == null || inputValues.isEmpty()) return result;
+
+        for (Map.Entry<String, Object> input : inputValues.entrySet()) {
+            String inputKey = input.getKey();
+
+            // Exact match first
+            if (result.bindings.containsKey(inputKey)) {
+                result.bindings.put(inputKey, input.getValue());
+                continue;
+            }
+
+            // Case-insensitive fallback
+            String inputNorm = inputKey.replaceAll("\\s+", "");
+            for (String varName : result.bindings.keySet()) {
+                if (varName.replaceAll("\\s+", "").equalsIgnoreCase(inputNorm)) {
+                    result.bindings.put(varName, input.getValue());
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the bindings as a plain Map.
+     * Used to build AutomatonOutput.
+     */
+
+    public Map<String, Object> toMap() {
+        return Collections.unmodifiableMap(new LinkedHashMap<>(bindings));
     }
 
     private static Object castToType(Object raw, String type) {

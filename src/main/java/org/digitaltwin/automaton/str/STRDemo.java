@@ -9,92 +9,135 @@ import java.io.File;
 import java.util.*;
 
 /**
- * Demonstrates the STR interface.
+ * Demonstrates the Automaton SLI with two input modes:
  *
+ * 1. Direct Map input (standalone testing)
+ *    AutomatonSTR.withMapInput(automaton)
+ *
+ * 2. StepCip-like input (simulates membership integration)
+ *    new AutomatonSTR<>(automaton, step -> step.current)
+ *
+ * In production, the membership wires it as:
+ *    new AutomatonSTR<>(automaton, step -> step.current().getValues())
  */
 public class STRDemo {
 
+    /**
+     * Simulates StepCip<M> from gemini3d-trace.
+     * In production, this is the real StepCip class.
+     * Here we mimic it to show the extractor pattern works.
+     */
+    record Step(Map<String, Object> last, long deltaTms, Map<String, Object> current) {
+        @Override
+        public String toString() {
+            return "(last=" + last + ", deltaT=" + deltaTms + "ms, current=" + current + ")";
+        }
+    }
+
     public static void main(String[] args) throws Exception {
 
-        // ── Parse the automaton model ──
         Automaton automaton;
         if (args.length > 0) {
             automaton = AutomatonParser.parse(new File(args[0]));
         } else {
             automaton = AutomatonParser.parseResource("automaton.json");
         }
-        System.out.println("Automaton: " + automaton.getName());
+
+        System.out.println("+--[AUTOMATON SLI DEMO]---------------------------------------+");
+        System.out.println("|  Automaton  : " + automaton.getName());
+        System.out.println("|  States     : " + automaton.getSpace().getStates());
+        System.out.println("|  Variables  : " + automaton.getSpace().getVariables());
+        System.out.println("+------------------------------------------------------------+");
+
+        // ════════════════════════════════════════════════════════
+        // DEMO 1: Direct Map input (standalone testing)
+        // ════════════════════════════════════════════════════════
+        System.out.println();
+        System.out.println("═══ DEMO 1: Direct Map Input (standalone) ═══════════════════");
         System.out.println();
 
-        // ── Create the STR ──
-        // The STR is a passive bridge. It does NOT loop.
-        // The caller (this demo, or the Inclusion engine) decides what to do.
-        ISemanticTransitionRelation<Configuration, Transition> str = new AutomatonSTR(automaton);
+        AutomatonSTR<Map<String, Object>> sli1 = AutomatonSTR.withMapInput(automaton);
 
-        // ── Step 1: Get initial configurations ──
-        Set<Configuration> initials = str.initial();
-        System.out.println("=== initial() ===");
-        System.out.println("  " + initials);
+        List<Map<String, Object>> measurements = List.of(
+                Map.of("x", 0, "y", 0, "z", 0),
+                Map.of("x", 10, "y", 10, "z", 0),
+                Map.of("x", 15, "y", 7, "z", 0),
+                Map.of("x", 13, "y", 9, "z", 0)
+        );
+
+        Configuration current = sli1.initial().iterator().next();
+        System.out.println("initial() → " + current);
         System.out.println();
 
-        // Our automaton is deterministic: exactly one initial config
-        Configuration current = initials.iterator().next();
-
-        // ── Step 2: Caller-driven exploration ──
-        // This is what the Inclusion engine does:
-        //   - call actions() to see what's available
-        //   - MATCH with trace data to decide which action
-        //   - call execute() to advance
-        System.out.println("=== Caller-driven trace ===");
-        System.out.println();
-
-        Set<String> visited = new HashSet<>();
-        visited.add(current.toString());
         int step = 0;
-
-        while (step < 50) {
+        for (Map<String, Object> m : measurements) {
             step++;
-
-            // Ask the STR: what actions are available?
-            Set<Transition> enabled = str.actions(current);
-
-            System.out.println("Step " + step + ": " + current.currentState());
-            System.out.println("  config   = " + current);
-            System.out.println("  enabled  = " + enabled.stream()
-                    .map(Transition::getName).toList());
-
-            if (enabled.isEmpty()) {
-                System.out.println("  => DEADLOCK (no enabled actions)");
-                break;
-            }
-
-            // The CALLER decides which action to fire.
-            // In the Inclusion engine: this would be matched against trace data.
-            // Here: we just pick the first one.
-            Transition chosen = enabled.iterator().next();
-            System.out.println("  chosen   = " + chosen.getName());
-
-            // Ask the STR to execute
-            Set<Configuration> results = str.execute(current, chosen);
-
-            // Our automaton is deterministic: exactly one result
-            Configuration next = results.iterator().next();
-            System.out.println("  result   = " + next);
-            System.out.println();
-
-            // Loop detection (caller's responsibility, NOT the STR's)
-            if (visited.contains(next.toString())) {
-                System.out.println("  => LOOP detected by caller. Stopping.");
-                break;
-            }
-            visited.add(next.toString());
-
-            current = next;
+            System.out.println("── Step " + step + " ──");
+            System.out.println("  INPUT  : " + m);
+            current = runStep(sli1, m, current);
         }
 
+        System.out.println("FINAL: " + current);
+
+        // ════════════════════════════════════════════════════════
+        // DEMO 2: StepCip-like input (simulates membership)
+        // ════════════════════════════════════════════════════════
         System.out.println();
-        System.out.println("=== Final ===");
-        System.out.println("  " + current);
-        System.out.println("  Steps: " + step);
+        System.out.println("═══ DEMO 2: StepCip-like Input (membership mode) ════════════");
+        System.out.println();
+
+        // Extractor: Step → Map<String, Object>
+        // Takes current measurement from the step (mi+1)
+        AutomatonSTR<Step> sli2 = new AutomatonSTR<>(automaton, s -> s.current());
+
+        List<Step> steps = List.of(
+                new Step(Map.of(),                         0,    Map.of("x", 0, "y", 0, "z", 0)),
+                new Step(Map.of("x", 0, "y", 0, "z", 0),  5000, Map.of("x", 10, "y", 10, "z", 0)),
+                new Step(Map.of("x", 10, "y", 10, "z", 0),5000, Map.of("x", 15, "y", 7, "z", 0)),
+                new Step(Map.of("x", 15, "y", 7, "z", 0), 5000, Map.of("x", 13, "y", 9, "z", 0))
+        );
+
+        current = sli2.initial().iterator().next();
+        System.out.println("initial() → " + current);
+        System.out.println();
+
+        step = 0;
+        for (Step s : steps) {
+            step++;
+            System.out.println("── Step " + step + " ──");
+            System.out.println("  INPUT  : " + s);
+            current = runStep(sli2, s, current);
+        }
+
+        System.out.println("FINAL: " + current);
+    }
+
+    /**
+     * Runs one SLI step: actions → execute → print → return new config.
+     * Works with ANY input type thanks to generics.
+     */
+    private static <I> Configuration runStep(
+            ISemanticTransitionRelation<I, AutomatonOutput, Transition, Configuration> sli,
+            I input,
+            Configuration current) {
+
+        Set<Transition> enabled = sli.actions(input, current);
+        System.out.println("  enabled: " + enabled.stream().map(Transition::getName).toList());
+
+        if (enabled.isEmpty()) {
+            System.out.println("  => NO TRANSITION. Stopped.");
+            System.out.println();
+            return current;
+        }
+
+        Transition chosen = enabled.iterator().next();
+        var results = sli.execute(chosen, input, current);
+        var result = results.iterator().next();
+
+        System.out.println("  fired  : " + chosen.getName() + " (" + chosen.getFrom() + " → " + chosen.getTo() + ")");
+        System.out.println("  OUTPUT : " + result.output());
+        System.out.println();
+
+        return result.configuration();
     }
 }

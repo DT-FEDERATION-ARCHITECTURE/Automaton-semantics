@@ -1,0 +1,16 @@
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\Main.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\model\Automaton.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\model\InitialConfig.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\model\Space.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\model\Transition.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\model\Variable.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\parser\AutomatonParser.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\semantics\ActionEvaluator.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\semantics\Configuration.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\semantics\GuardEvaluator.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\semantics\GuardNormalizer.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\semantics\Valuation.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\str\AutomatonOutput.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\str\AutomatonSTR.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\str\ISemanticTransitionRelation.java
+C:\Users\belhadmo\Desktop\dev\automaton-semantics\src\main\java\org\digitaltwin\automaton\str\STRDemo.java
