@@ -1,0 +1,57 @@
+{
+  "name": "LayeredPrintTestAutomaton",
+  "space": {
+    "states": ["S0", "S1", "S2", "S3"],
+    "variables": [
+      { "name": "x", "type": "int", "initialValue": 0 },
+      { "name": "y", "type": "int", "initialValue": 0 },
+      { "name": "z", "type": "int", "initialValue": 0 },
+      { "name": "layer", "type": "int", "initialValue": 0 },
+      { "name": "maxLayer", "type": "int", "initialValue": 2 }
+    ]
+  },
+  "initial": {
+    "state": "S0",
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "layer": 0
+  },
+  "transitions": [
+    {
+      "name": "rapid_positioning",
+      "from": "S0",
+      "guard": "(x == 0 && y == 0) || z == 0",
+      "action": "x = 10; y = 10; z = 0",
+      "to": "S1"
+    },
+    {
+      "name": "start_print",
+      "from": "S1",
+      "guard": "x >= 10 && y >= 10 && z == layer * 2",
+      "action": "x = x + 5; y = y - 3",
+      "to": "S2"
+    },
+    {
+      "name": "finish_path",
+      "from": "S2",
+      "guard": "(x > y && y >= 0) || (layer == 0 && x >= 15)",
+      "action": "x = x - 2; y = y + 2; z = z",
+      "to": "S3"
+    },
+    {
+      "name": "layer_change_or_finish",
+      "from": "S3",
+      "guard": "layer < maxLayer && z == layer * 2",
+      "action": "layer = layer + 1; z = z + 2; x = 10; y = 10",
+      "to": "S1"
+    },
+    {
+      "name": "finish_job",
+      "from": "S3",
+      "guard": "layer == maxLayer",
+      "action": "x = x; y = y; z = z",
+      "to": "S0"
+    }
+  ]
+}

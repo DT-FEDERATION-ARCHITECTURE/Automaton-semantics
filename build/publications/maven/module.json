@@ -1,0 +1,83 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "org.digitaltwin",
+    "module": "automaton-semantics",
+    "version": "1.0.0-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.4.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "automaton-semantics-1.0.0-SNAPSHOT.jar",
+          "url": "automaton-semantics-1.0.0-SNAPSHOT.jar",
+          "size": 33342,
+          "sha512": "35c6a2cf5c8da16fed4d04d52fcf0a836d1c9d56f83e0d38cb932d29313b9bce77a74a422a3440b0c590181ffd81d95a5996c6fd5bbcb7b18bf29f9d01c2a7c7",
+          "sha256": "5d13f4065c5f133371b73da50d99cab7087846374e418c5b696bb906104ab020",
+          "sha1": "c414147992079b79e58e2b35e73149712eb74560",
+          "md5": "608c246b325f777d08aacbbeed68dcaa"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.fasterxml.jackson.core",
+          "module": "jackson-databind",
+          "version": {
+            "requires": "2.17.0"
+          }
+        },
+        {
+          "group": "org.apache.commons",
+          "module": "commons-jexl3",
+          "version": {
+            "requires": "3.3"
+          }
+        },
+        {
+          "group": "org.slf4j",
+          "module": "slf4j-simple",
+          "version": {
+            "requires": "2.0.12"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "automaton-semantics-1.0.0-SNAPSHOT.jar",
+          "url": "automaton-semantics-1.0.0-SNAPSHOT.jar",
+          "size": 33342,
+          "sha512": "35c6a2cf5c8da16fed4d04d52fcf0a836d1c9d56f83e0d38cb932d29313b9bce77a74a422a3440b0c590181ffd81d95a5996c6fd5bbcb7b18bf29f9d01c2a7c7",
+          "sha256": "5d13f4065c5f133371b73da50d99cab7087846374e418c5b696bb906104ab020",
+          "sha1": "c414147992079b79e58e2b35e73149712eb74560",
+          "md5": "608c246b325f777d08aacbbeed68dcaa"
+        }
+      ]
+    }
+  ]
+}
